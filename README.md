@@ -15,21 +15,13 @@ An interactive one-page web experience that simulates a user's future in 2030 us
 
 **Built for [VishwaNova — National Level Weboreel AI Hackathon 2026]()**
 
-<br />
-
-[🚀 Live Demo](#) · [� Setup](#-getting-started)s
-
 </div>
-
----
 
 ## ✨ About
 
 **Future You 2030** is a one-page interactive web experience built for the **Weboreel AI Hackathon**. It allows users to explore their potential future through engaging storytelling and simple interaction flows.
 
 Users can choose different life paths — **Student**, **Startup Founder**, or **Content Creator** — and instantly visualize their journey to 2030 with a personalized timeline, stats, and narrative.
-
----
 
 ## 🎯 Key Features
 
@@ -43,8 +35,6 @@ Users can choose different life paths — **Student**, **Startup Founder**, or *
 | ⌨️ Keyboard Accessible | Full keyboard navigation and ARIA labels |
 | 🎨 Smooth Animations | Scroll-triggered reveals and hover effects |
 | ⚡ Zero Dependencies | Pure HTML, CSS, and JavaScript — no frameworks |
-
----
 
 ## 🛠 Getting Started
 
@@ -71,8 +61,6 @@ python -m http.server 8080
 # Then visit http://localhost:8080
 ```
 
----
-
 ## 📁 Project Structure
 
 ```
@@ -83,8 +71,6 @@ creative01-future-you-2030/
 ├── favicon.svg       # Browser tab icon
 └── README.md         # You are here
 ```
-
----
 
 ## 🎨 Design System
 
@@ -98,8 +84,6 @@ creative01-future-you-2030/
 | **Pink** | `#ec4899` |
 | **Background** | `#050510` → `#0a0a1a` |
 
----
-
 ## 🧠 How It Works
 
 1. **Hero Section** — User lands on a futuristic welcome screen
@@ -109,8 +93,6 @@ creative01-future-you-2030/
 5. **Call to Action** — Explore another path or restart
 
 All content is generated dynamically via JavaScript — no page reloads, no external APIs.
-
----
 
 ## 🚀 Deployment
 
@@ -122,8 +104,6 @@ This is a **static site** — deploy anywhere:
 | **Netlify** | Drag & drop the folder |
 | **Vercel** | `vercel --prod` |
 
----
-
 ## 👨‍💻 Built By
 
 <div align="center">
@@ -134,13 +114,9 @@ Part of the **creative01 startup initiative** — blending creativity with techn
 
 </div>
 
----
-
 ## 📄 License
 
 This project is open source under the [MIT License](LICENSE).
-
----
 
 <div align="center">
 
