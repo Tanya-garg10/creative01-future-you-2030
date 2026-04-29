@@ -17,7 +17,7 @@ An interactive one-page web experience that simulates a user's future in 2030 us
 
 <br />
 
-[🚀 Live Demo](#) · [📸 Screenshots](#-screenshots) · [🛠 Setup](#-getting-started)
+[🚀 Live Demo](#) · [� Setup](#-getting-started)s
 
 </div>
 
@@ -43,20 +43,6 @@ Users can choose different life paths — **Student**, **Startup Founder**, or *
 | ⌨️ Keyboard Accessible | Full keyboard navigation and ARIA labels |
 | 🎨 Smooth Animations | Scroll-triggered reveals and hover effects |
 | ⚡ Zero Dependencies | Pure HTML, CSS, and JavaScript — no frameworks |
-
----
-
-## 📸 Screenshots
-
-<div align="center">
-
-| Hero Section | Path Selection | Future Result |
-|---|---|---|
-| ![Hero](https://via.placeholder.com/300x200/0a0a1a/8b5cf6?text=Hero+Section) | ![Paths](https://via.placeholder.com/300x200/0a0a1a/06b6d4?text=Choose+Path) | ![Result](https://via.placeholder.com/300x200/0a0a1a/ec4899?text=Your+2030) |
-
-> *Replace these placeholders with actual screenshots of your live site*
-
-</div>
 
 ---
 
