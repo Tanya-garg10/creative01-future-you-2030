@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Future You 2030 — Discover Your Path</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&family=Poppins:wght@300;400;600;700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <!-- Ambient Audio -->
+  <audio id="bgMusic" loop preload="auto">
+    <source src="https://cdn.pixabay.com/audio/2022/10/25/audio_33f680db52.mp3" type="audio/mpeg" />
+  </audio>
+
+  <!-- Music Toggle -->
+  <button id="musicToggle" class="music-btn" aria-label="Toggle background music">
+    <span class="music-icon">🔇</span>
+  </button>
+
+  <!-- Particle Canvas -->
+  <canvas id="particles"></canvas>
+
+  <!-- ===== SECTION 1: HERO ===== -->
+  <section id="hero" class="section hero">
+    <div class="hero-overlay"></div>
+    <div class="container hero-content">
+      <p class="hero-tag fade-up">✦ A Journey Into Tomorrow</p>
+      <h1 class="hero-title fade-up delay-1">
+        Welcome to Your<br /><span class="gradient-text">Future — 2030</span>
+      </h1>
+      <p class="hero-sub fade-up delay-2">
+        Discover who you become in the next 5 years.<br />
+        Your choices today shape the world of tomorrow.
+      </p>
+      <button class="btn-primary fade-up delay-3" onclick="smoothScroll('#paths')">
+        🚀 Start Your Journey
+      </button>
+      <div class="scroll-hint fade-up delay-4">
+        <span>Scroll</span>
+        <div class="scroll-line"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SECTION 2: CHOOSE YOUR PATH ===== -->
+  <section id="paths" class="section paths-section">
+    <div class="container">
+      <p class="section-tag reveal">Choose Wisely</p>
+      <h2 class="section-title reveal">Choose Your <span class="gradient-text">Path</span></h2>
+      <p class="section-sub reveal">Every path leads to a different future. Which one calls to you?</p>
+      <div class="paths-grid">
+        <!-- Student -->
+        <div class="path-card reveal" data-path="student" tabindex="0" role="button"
+          aria-label="Choose Student Life path">
+          <div class="card-glow"></div>
+          <div class="card-icon">🎓</div>
+          <h3>Student Life</h3>
+          <p>Research, innovation, and academic excellence define your journey.</p>
+          <span class="card-arrow">→</span>
+        </div>
+        <!-- Startup -->
+        <div class="path-card reveal" data-path="startup" tabindex="0" role="button"
+          aria-label="Choose Startup Founder path">
+          <div class="card-glow"></div>
+          <div class="card-icon">🚀</div>
+          <h3>Startup Founder</h3>
+          <p>Build, disrupt, and lead the next wave of technology.</p>
+          <span class="card-arrow">→</span>
+        </div>
+        <!-- Creator -->
+        <div class="path-card reveal" data-path="creator" tabindex="0" role="button"
+          aria-label="Choose Content Creator path">
+          <div class="card-glow"></div>
+          <div class="card-icon">🎨</div>
+          <h3>Content Creator</h3>
+          <p>Inspire millions through stories, art, and digital experiences.</p>
+          <span class="card-arrow">→</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SECTION 3: FUTURE RESULT ===== -->
+  <section id="result" class="section result-section hidden-section">
+    <div class="container">
+      <p class="section-tag reveal">Your Destiny Awaits</p>
+      <h2 class="section-title reveal">Your Life in <span class="gradient-text">2030</span></h2>
+      <div class="result-card reveal">
+        <div class="result-icon" id="resultIcon">🚀</div>
+        <h3 id="resultTitle">Loading your future…</h3>
+        <p id="resultText">Please choose a path above.</p>
+        <div class="result-stats" id="resultStats"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SECTION 4: VISUAL STORY ===== -->
+  <section id="story" class="section story-section hidden-section">
+    <div class="container">
+      <p class="section-tag reveal">Your Timeline</p>
+      <h2 class="section-title reveal">A Glimpse of Your <span class="gradient-text">Future</span></h2>
+      <div class="timeline" id="timeline"></div>
+      <p class="story-quote reveal">
+        "From small beginnings to big achievements — your journey defines you."
+      </p>
+    </div>
+  </section>
+
+  <!-- ===== SECTION 5: CTA ===== -->
+  <section id="cta" class="section cta-section">
+    <div class="container">
+      <h2 class="cta-title reveal">Ready to Build<br />Your <span class="gradient-text">Future?</span></h2>
+      <p class="cta-sub reveal">The future isn't written yet. You hold the pen.</p>
+      <div class="cta-buttons reveal">
+        <button class="btn-primary" onclick="smoothScroll('#paths')">🔄 Explore Another Path</button>
+        <button class="btn-outline" onclick="smoothScroll('#hero')">↑ Back to Top</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <p>Built by <strong>creative01</strong> 🚀</p>
+      <p class="footer-sub">Weboreel Hackathon Submission — Future You 2030</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
