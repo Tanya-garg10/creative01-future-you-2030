@@ -75,89 +75,101 @@ const resultStats = document.getElementById('resultStats');
 const timeline = document.getElementById('timeline');
 const pathCards = document.querySelectorAll('.path-card');
 
-// ─── Ambient Music (Web Audio API — no external files needed) ───
+// ─── Ambient Music — generates a WAV in-memory, plays as <audio> ───
 let musicPlaying = false;
-let audioCtx = null;
-let masterGain = null;
-let oscillators = [];
+let audioEl = null;
 
-function createAmbientMusic() {
-  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  masterGain = audioCtx.createGain();
-  masterGain.gain.value = 0;
-  masterGain.connect(audioCtx.destination);
+function generateAmbientWav() {
+  const sampleRate = 22050;
+  const duration = 16; // 16 seconds, will loop
+  const numSamples = sampleRate * duration;
+  const buffer = new Float32Array(numSamples);
 
-  // Ambient pad — layered detuned oscillators
-  const notes = [130.81, 164.81, 196.00, 246.94]; // C3, E3, G3, B3
-  notes.forEach((freq, i) => {
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    const filter = audioCtx.createBiquadFilter();
+  // Chord: C3, E3, G3, B3 + sub C2
+  const freqs = [65.41, 130.81, 164.81, 196.0, 246.94];
+  const amps = [0.06, 0.09, 0.09, 0.08, 0.07];
 
-    osc.type = 'sine';
-    osc.frequency.value = freq;
-    osc.detune.value = (i - 1.5) * 8; // slight detune for warmth
+  for (let i = 0; i < numSamples; i++) {
+    const t = i / sampleRate;
+    let sample = 0;
+    for (let f = 0; f < freqs.length; f++) {
+      // Slight detune for warmth + slow vibrato
+      const vibrato = 1 + 0.002 * Math.sin(2 * Math.PI * 0.15 * t + f);
+      sample += amps[f] * Math.sin(2 * Math.PI * freqs[f] * vibrato * t);
+    }
+    // Gentle fade in/out at loop boundaries (first & last 2 seconds)
+    const fadeLen = 2 * sampleRate;
+    if (i < fadeLen) sample *= i / fadeLen;
+    if (i > numSamples - fadeLen) sample *= (numSamples - i) / fadeLen;
+    buffer[i] = sample;
+  }
 
-    filter.type = 'lowpass';
-    filter.frequency.value = 400 + i * 100;
-    filter.Q.value = 0.5;
+  // Encode as 16-bit PCM WAV
+  const numChannels = 1;
+  const bitsPerSample = 16;
+  const byteRate = sampleRate * numChannels * (bitsPerSample / 8);
+  const blockAlign = numChannels * (bitsPerSample / 8);
+  const dataSize = numSamples * numChannels * (bitsPerSample / 8);
+  const headerSize = 44;
+  const wav = new ArrayBuffer(headerSize + dataSize);
+  const view = new DataView(wav);
 
-    gain.gain.value = 0.12;
+  function writeStr(offset, str) {
+    for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
+  }
+  writeStr(0, 'RIFF');
+  view.setUint32(4, 36 + dataSize, true);
+  writeStr(8, 'WAVE');
+  writeStr(12, 'fmt ');
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, numChannels, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, byteRate, true);
+  view.setUint16(32, blockAlign, true);
+  view.setUint16(34, bitsPerSample, true);
+  writeStr(36, 'data');
+  view.setUint32(40, dataSize, true);
 
-    osc.connect(filter);
-    filter.connect(gain);
-    gain.connect(masterGain);
-    osc.start();
-    oscillators.push(osc);
-  });
+  let offset = 44;
+  for (let i = 0; i < numSamples; i++) {
+    const s = Math.max(-1, Math.min(1, buffer[i]));
+    view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+    offset += 2;
+  }
 
-  // Sub bass drone
-  const sub = audioCtx.createOscillator();
-  const subGain = audioCtx.createGain();
-  sub.type = 'sine';
-  sub.frequency.value = 65.41; // C2
-  subGain.gain.value = 0.08;
-  sub.connect(subGain);
-  subGain.connect(masterGain);
-  sub.start();
-  oscillators.push(sub);
+  const blob = new Blob([wav], { type: 'audio/wav' });
+  return URL.createObjectURL(blob);
+}
 
-  // Slow LFO for gentle movement
-  const lfo = audioCtx.createOscillator();
-  const lfoGain = audioCtx.createGain();
-  lfo.type = 'sine';
-  lfo.frequency.value = 0.15; // very slow
-  lfoGain.gain.value = 15;
-  lfo.connect(lfoGain);
-  lfoGain.connect(oscillators[0].frequency);
-  lfo.start();
-  oscillators.push(lfo);
+function initAudio() {
+  if (audioEl) return;
+  const url = generateAmbientWav();
+  audioEl = new Audio(url);
+  audioEl.loop = true;
+  audioEl.volume = 0.3;
 }
 
 function startMusic() {
-  if (!audioCtx) createAmbientMusic();
-  if (audioCtx.state === 'suspended') audioCtx.resume();
-  // Fade in
-  masterGain.gain.cancelScheduledValues(audioCtx.currentTime);
-  masterGain.gain.setValueAtTime(masterGain.gain.value, audioCtx.currentTime);
-  masterGain.gain.linearRampToValueAtTime(0.18, audioCtx.currentTime + 1.5);
-  musicPlaying = true;
-  musicIcon.textContent = '🔊';
-  musicBtn.classList.add('playing');
+  initAudio();
+  audioEl.play().then(function () {
+    musicPlaying = true;
+    musicIcon.textContent = '🔊';
+    musicBtn.classList.add('playing');
+  }).catch(function () {
+    // Browser blocked — will retry on next click
+  });
 }
 
 function stopMusic() {
-  if (!audioCtx || !masterGain) return;
-  // Fade out
-  masterGain.gain.cancelScheduledValues(audioCtx.currentTime);
-  masterGain.gain.setValueAtTime(masterGain.gain.value, audioCtx.currentTime);
-  masterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.8);
+  if (!audioEl) return;
+  audioEl.pause();
   musicPlaying = false;
   musicIcon.textContent = '🔇';
   musicBtn.classList.remove('playing');
 }
 
-musicBtn.addEventListener('click', () => {
+musicBtn.addEventListener('click', function () {
   if (musicPlaying) {
     stopMusic();
   } else {
@@ -165,15 +177,16 @@ musicBtn.addEventListener('click', () => {
   }
 });
 
-// Auto-play music on first user interaction
-['click', 'touchstart', 'keydown'].forEach((evt) => {
-  document.addEventListener(evt, function autoPlay() {
-    if (!musicPlaying) startMusic();
-    ['click', 'touchstart', 'keydown'].forEach((e) =>
-      document.removeEventListener(e, autoPlay)
-    );
-  }, { once: true });
-});
+// Auto-play on first user gesture (click, touch, or key)
+function autoPlayOnce() {
+  if (!musicPlaying) startMusic();
+  document.removeEventListener('click', autoPlayOnce);
+  document.removeEventListener('touchstart', autoPlayOnce);
+  document.removeEventListener('keydown', autoPlayOnce);
+}
+document.addEventListener('click', autoPlayOnce);
+document.addEventListener('touchstart', autoPlayOnce);
+document.addEventListener('keydown', autoPlayOnce);
 
 // ─── Smooth Scroll ───
 function smoothScroll(selector) {
