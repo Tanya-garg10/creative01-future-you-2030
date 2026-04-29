@@ -64,7 +64,6 @@ const pathData = {
 };
 
 // ─── DOM References ───
-const music = document.getElementById('bgMusic');
 const musicBtn = document.getElementById('musicToggle');
 const musicIcon = musicBtn.querySelector('.music-icon');
 const resultSection = document.getElementById('result');
@@ -76,34 +75,105 @@ const resultStats = document.getElementById('resultStats');
 const timeline = document.getElementById('timeline');
 const pathCards = document.querySelectorAll('.path-card');
 
-// ─── Music Control ───
+// ─── Ambient Music (Web Audio API — no external files needed) ───
 let musicPlaying = false;
+let audioCtx = null;
+let masterGain = null;
+let oscillators = [];
+
+function createAmbientMusic() {
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  masterGain = audioCtx.createGain();
+  masterGain.gain.value = 0;
+  masterGain.connect(audioCtx.destination);
+
+  // Ambient pad — layered detuned oscillators
+  const notes = [130.81, 164.81, 196.00, 246.94]; // C3, E3, G3, B3
+  notes.forEach((freq, i) => {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    const filter = audioCtx.createBiquadFilter();
+
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    osc.detune.value = (i - 1.5) * 8; // slight detune for warmth
+
+    filter.type = 'lowpass';
+    filter.frequency.value = 400 + i * 100;
+    filter.Q.value = 0.5;
+
+    gain.gain.value = 0.12;
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(masterGain);
+    osc.start();
+    oscillators.push(osc);
+  });
+
+  // Sub bass drone
+  const sub = audioCtx.createOscillator();
+  const subGain = audioCtx.createGain();
+  sub.type = 'sine';
+  sub.frequency.value = 65.41; // C2
+  subGain.gain.value = 0.08;
+  sub.connect(subGain);
+  subGain.connect(masterGain);
+  sub.start();
+  oscillators.push(sub);
+
+  // Slow LFO for gentle movement
+  const lfo = audioCtx.createOscillator();
+  const lfoGain = audioCtx.createGain();
+  lfo.type = 'sine';
+  lfo.frequency.value = 0.15; // very slow
+  lfoGain.gain.value = 15;
+  lfo.connect(lfoGain);
+  lfoGain.connect(oscillators[0].frequency);
+  lfo.start();
+  oscillators.push(lfo);
+}
 
 function startMusic() {
-  music.volume = 0.25;
-  music.play().then(() => {
-    musicPlaying = true;
-    musicIcon.textContent = '🔊';
-    musicBtn.classList.add('playing');
-  }).catch(() => {});
+  if (!audioCtx) createAmbientMusic();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  // Fade in
+  masterGain.gain.cancelScheduledValues(audioCtx.currentTime);
+  masterGain.gain.setValueAtTime(masterGain.gain.value, audioCtx.currentTime);
+  masterGain.gain.linearRampToValueAtTime(0.18, audioCtx.currentTime + 1.5);
+  musicPlaying = true;
+  musicIcon.textContent = '🔊';
+  musicBtn.classList.add('playing');
+}
+
+function stopMusic() {
+  if (!audioCtx || !masterGain) return;
+  // Fade out
+  masterGain.gain.cancelScheduledValues(audioCtx.currentTime);
+  masterGain.gain.setValueAtTime(masterGain.gain.value, audioCtx.currentTime);
+  masterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.8);
+  musicPlaying = false;
+  musicIcon.textContent = '🔇';
+  musicBtn.classList.remove('playing');
 }
 
 musicBtn.addEventListener('click', () => {
   if (musicPlaying) {
-    music.pause();
-    musicPlaying = false;
-    musicIcon.textContent = '🔇';
-    musicBtn.classList.remove('playing');
+    stopMusic();
   } else {
     startMusic();
   }
 });
 
-// Auto-play music on first interaction
-document.addEventListener('click', function autoPlay() {
-  if (!musicPlaying) startMusic();
-  document.removeEventListener('click', autoPlay);
-}, { once: true });
+// Auto-play music on first user interaction
+['click', 'touchstart', 'keydown'].forEach((evt) => {
+  document.addEventListener(evt, function autoPlay() {
+    if (!musicPlaying) startMusic();
+    ['click', 'touchstart', 'keydown'].forEach((e) =>
+      document.removeEventListener(e, autoPlay)
+    );
+  }, { once: true });
+});
 
 // ─── Smooth Scroll ───
 function smoothScroll(selector) {
